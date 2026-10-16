@@ -9,6 +9,19 @@ on:
         description: Create a nightly release
         type: boolean
         required: false
+      sidestore_repo:
+        description: LiveContainer+SideStore에 합칠 SideStore 저장소 (push 빌드는 항상 공식 저장소 사용)
+        type: choice
+        options:
+          - SideStore/SideStore
+          - raj-sh-git/SideStore
+        default: SideStore/SideStore
+        required: false
+      sidestore_tag:
+        description: 위 저장소에서 받아올 릴리스 태그 (기본값 nightly)
+        type: string
+        default: nightly
+        required: false
 
 jobs:
   build:
@@ -67,6 +80,9 @@ jobs:
           name: ${{ env.archive_path }}.xcarchive.tar
           path: ${{ env.archive_path }}.xcarchive.tar
       - name: Create IPA
+        env:
+          SIDESTORE_REPO: ${{ inputs.sidestore_repo || 'SideStore/SideStore' }}
+          SIDESTORE_TAG: ${{ inputs.sidestore_tag || 'nightly' }}
         run: |
           sh .github/build_github.sh
 
