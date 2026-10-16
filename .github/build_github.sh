@@ -41,9 +41,15 @@ mv ./tmp/SideStoreSupport.framework Payload/LiveContainer.app/Frameworks
 
 # download SideStore
 cd tmp
-# 공식 SideStore nightly 사용 (LiveContainer/SideStore 포크는 공식 develop과 코드가 같고 CI만 다른데, 9/18 이후 갱신이 멈춰 있음)
+# 기본값은 공식 SideStore nightly (LiveContainer/SideStore 포크는 공식 develop과 코드가 같고 CI만 다른데, 9/18 이후 갱신이 멈춰 있음)
 # 원래 값: https://github.com/LiveContainer/SideStore/releases/download/nightly/SideStore.ipa
-wget https://github.com/SideStore/SideStore/releases/download/nightly/SideStore.ipa
+# workflow_dispatch 의 sidestore_repo / sidestore_tag 입력값으로 다른 저장소(예: raj-sh-git/SideStore)를 선택할 수 있음
+SIDESTORE_REPO="${SIDESTORE_REPO:-SideStore/SideStore}"
+SIDESTORE_TAG="${SIDESTORE_TAG:-nightly}"
+SIDESTORE_URL="https://github.com/${SIDESTORE_REPO}/releases/download/${SIDESTORE_TAG}/SideStore.ipa"
+echo "Using SideStore from: ${SIDESTORE_URL}"
+# 다운로드 실패 시 깨진 IPA가 만들어지지 않도록 즉시 중단
+wget "${SIDESTORE_URL}" || { echo "SideStore.ipa 다운로드 실패: ${SIDESTORE_URL}"; exit 1; }
 unzip SideStore.ipa
 cd ..
 
